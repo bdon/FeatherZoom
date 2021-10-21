@@ -19,7 +19,9 @@
     "build": "esbuild index.ts --bundle --target=es2015 --outfile=dist/featherzoom.js --global-name=featherzoom",
     "build-min": "esbuild index.ts --bundle --target=es2015 --minify --outfile=dist/featherzoom.min.js --global-name=featherzoom",
     "build-module": "esbuild index.ts --bundle --target=es2015 --outfile=dist/featherzoom.module.js --format=esm",
-    "dist": "npm run build && npm run build-min && npm run build-module"
+    "build-tsc": "tsc --declaration --outdir dist",
+    "tsc": "tsc --noEmit --watch",
+    "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc"
   },
   "repository": {
     "type": "git",

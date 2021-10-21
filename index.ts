@@ -1,23 +1,30 @@
+// @ts-nocheck
 const ANIMATION_TIME = 300;
 const SCROLL_PIXELS_FOR_ZOOM_LEVEL = 150;
 
-let easeOutQuad = (t) => {
+export type Point = [number, number]
+
+let easeOutQuad = (t : number) : number => {
   return t * (2 - t);
 };
 
 export class Scroller {
+    _isAnimating: boolean;
+    _lastZoom: number;
+    _lastCenter: number;
+
     constructor() {
         this._isAnimating = false;
         this._lastCenter = {lat:0,lng:0};
         this._lastZoom = 0;
     }
 
-    wheel(event) {
+    wheel(event: MouseEvent) : void {
         const addToZoom = -event.deltaY / SCROLL_PIXELS_FOR_ZOOM_LEVEL;
         this.zoomAroundMouse(addToZoom,event);
     }
 
-    zoomAroundMouse(zoomDiff,event) {
+    zoomAroundMouse(zoomDiff: number,event: MouseEvent) : void {
         let zoom = this.map.getZoom()
         let zoomTarget = zoom + zoomDiff; 
         this._wheelMousePosition = this.map.mouseEventToContainerPoint(event);
@@ -31,7 +38,7 @@ export class Scroller {
 
     }
 
-    setCenterZoomTarget(zoom,zoomAround) {
+    setCenterZoomTarget(zoom: number,zoomAround: Point) : void {
         if (this._isAnimating) {
             cancelAnimationFrame(this._animFrame)
             const { centerStep, zoomStep } = this.animationStep(performance.now())
@@ -53,7 +60,7 @@ export class Scroller {
         this._animFrame = requestAnimationFrame(this.animate)
     }
 
-    animate = (timestamp) => {
+    animate = (timestamp: number): void => {
         if (!this._animationEnd || timestamp >= this._animationEnd) {
             this._isAnimating = false
             this.map._moveEnd(true);
@@ -65,13 +72,13 @@ export class Scroller {
         }
     }
 
-    setCenterZoom(center,zoom) {
+    setCenterZoom(center: Point,zoom: number) : void {
         this.map._move(center, zoom);
         this._lastZoom = zoom;
         this._lastCenter = center;
     }
 
-    animationStep = (timestamp) => {
+    animationStep = (timestamp: number) : void => {
         const length = this._animationEnd - this._animationStart;
         const progress = Math.max(timestamp - this._animationStart, 0);
         const percentage = easeOutQuad(progress / length);
