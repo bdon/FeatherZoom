@@ -4,9 +4,11 @@
   "description": "Lightweight zooming for maps",
   "files": [
     "dist",
-    "index.js"
+    "index.ts"
   ],
-  "main": "index.js",
+  "main": "dist/featherzoom.js",
+  "module": "dist/featherzoom.module.js",
+  "source": "index.ts",
   "devDependencies": {
     "esbuild": "^0.13.8",
     "prettier": "^2.4.1",
