@@ -5,7 +5,7 @@ let easeOutQuad = (t) => {
   return t * (2 - t);
 };
 
-class Scroller {
+export class Scroller {
     constructor() {
         this._isAnimating = false;
         this._lastCenter = {lat:0,lng:0};
@@ -21,13 +21,9 @@ class Scroller {
         let zoom = this.map.getZoom()
         let zoomTarget = zoom + zoomDiff; 
         this._wheelMousePosition = this.map.mouseEventToContainerPoint(event);
-        // let latLngNow = this.map.getCenter()
         this._centerPoint = this.map.getSize()._divideBy(2);
-        // this._startLatLng = this.map.containerPointToLatLng(this._centerPoint);
         this._startLatLng = this.map.getCenter()
         this._wheelStartLatLng = this.map.containerPointToLatLng(this._wheelMousePosition);
-
-
 
         zoomTarget = zoomDiff < 0 ? Math.floor(zoomTarget) : Math.ceil(zoomTarget);
         zoomTarget = Math.max(this.map.getMinZoom(), Math.min(zoomTarget, this.map.getMaxZoom()));
@@ -87,7 +83,7 @@ class Scroller {
     }
 }
 
-const leafletHandler = () => {
+export const leafletHandler = () => {
     let s = new Scroller();
 
     return L.Handler.extend({

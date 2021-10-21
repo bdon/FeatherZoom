@@ -2,6 +2,10 @@
   "name": "featherzoom",
   "version": "0.0.1",
   "description": "Lightweight zooming for maps",
+  "files": [
+    "dist",
+    "src"
+  ],
   "main": "index.js",
   "devDependencies": {
     "esbuild": "^0.13.8",
@@ -9,7 +13,10 @@
     "typescript": "^4.4.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "esbuild index.ts --bundle --target=es2015 --servedir=. --outfile=dist/featherzoom.js --global-name=featherzoom",
+    "build": "esbuild index.ts --bundle --target=es2015 --outfile=dist/featherzoom.js --global-name=featherzoom",
+    "build-min": "esbuild index.ts --bundle --target=es2015 --minify --outfile=dist/featherzoom.min.js --global-name=featherzoom",
+    "build-module": "esbuild index.ts --bundle --target=es2015 --outfile=dist/featherzoom.module.js --format=esm",
   },
   "repository": {
     "type": "git",

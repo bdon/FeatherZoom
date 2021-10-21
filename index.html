@@ -4,7 +4,8 @@
    crossorigin=""/>
    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
    <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-   <script src="./index.js"></script>
+   <!-- <script src="./dist/featherzoom.js"></script> -->
+   <script src="https://unpkg.com/featherzoom@0.0.1/dist/featherzoom.js"></script>
    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
@@ -25,7 +26,7 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-            map.addHandler('featherzoom',leafletHandler())
+            map.addHandler('featherzoom',featherzoom.leafletHandler())
         </script>
     </body>
 </html>
