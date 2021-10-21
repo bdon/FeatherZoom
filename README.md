@@ -1,4 +1,6 @@
+# FeatherZoom
 
+[Demo](https://bdon.github.io/FeatherZoom/)
 
 ## See Also
 
