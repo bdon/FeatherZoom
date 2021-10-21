@@ -1,0 +1,28 @@
+{
+  "name": "featherzoom",
+  "version": "0.0.1",
+  "description": "Lightweight zooming for maps",
+  "main": "index.js",
+  "dependencies": {
+    "esbuild-darwin-64": "^0.13.8",
+    "esbuild": "^0.13.8",
+    "typescript": "^4.4.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bdon/FeatherZoom.git"
+  },
+  "keywords": [
+    "leaflet"
+  ],
+  "author": "Brandon Liu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bdon/FeatherZoom/issues"
+  },
+  "homepage": "https://github.com/bdon/FeatherZoom#readme"
+}
