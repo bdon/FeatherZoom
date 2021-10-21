@@ -10,13 +10,9 @@ let easeOutQuad = (t : number) : number => {
 
 export class Scroller {
     _isAnimating: boolean;
-    _lastZoom: number;
-    _lastCenter: number;
 
     constructor() {
         this._isAnimating = false;
-        this._lastCenter = {lat:0,lng:0};
-        this._lastZoom = 0;
     }
 
     wheel(event: MouseEvent) : void {
@@ -35,7 +31,6 @@ export class Scroller {
         zoomTarget = zoomDiff < 0 ? Math.floor(zoomTarget) : Math.ceil(zoomTarget);
         zoomTarget = Math.max(this.map.getMinZoom(), Math.min(zoomTarget, this.map.getMaxZoom()));
         this.setCenterZoomTarget(zoomTarget, this._wheelStartLatLng)
-
     }
 
     setCenterZoomTarget(zoom: number,zoomAround: Point) : void {
@@ -46,8 +41,8 @@ export class Scroller {
             this._zoomStart = zoomStep
         } else {
             this._isAnimating = true
-            this._centerStart = this._lastCenter
-            this._zoomStart = this._lastZoom
+            this._centerStart = this.map.getCenter()
+            this._zoomStart = this.map.getZoom()
         }
 
         this._animationStart = performance.now()
@@ -63,6 +58,7 @@ export class Scroller {
     animate = (timestamp: number): void => {
         if (!this._animationEnd || timestamp >= this._animationEnd) {
             this._isAnimating = false
+            this.setCenterZoom(this.map.getCenter(),this._zoomTarget);
             this.map._moveEnd(true);
 
         } else {
@@ -74,8 +70,6 @@ export class Scroller {
 
     setCenterZoom(center: Point,zoom: number) : void {
         this.map._move(center, zoom);
-        this._lastZoom = zoom;
-        this._lastCenter = center;
     }
 
     animationStep = (timestamp: number) : void => {
