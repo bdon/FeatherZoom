@@ -13,7 +13,6 @@ var featherzoom = (() => {
     Scroller: () => Scroller,
     leafletHandler: () => leafletHandler
   });
-  var SCROLL_PIXELS_FOR_ZOOM_LEVEL = 150;
   var easeOutQuad = (t) => {
     return t * (2 - t);
   };
@@ -24,10 +23,14 @@ var featherzoom = (() => {
           this._isAnimating = false;
           this.setCenterZoom(this.map.getCenter(), this._zoomTarget);
           this.map._moveEnd(true);
+          if (this._onZoom)
+            this._onZoom(this._zoomTarget);
         } else {
           const { centerStep, zoomStep } = this.animationStep(timestamp);
           this.setCenterZoom(centerStep, zoomStep);
           this._animFrame = requestAnimationFrame(this.animate);
+          if (this._onZoom)
+            this._onZoom(zoomStep);
         }
       };
       this.animationStep = (timestamp) => {
@@ -35,16 +38,22 @@ var featherzoom = (() => {
         const progress = Math.max(timestamp - this._animationStart, 0);
         const percentage = easeOutQuad(progress / length);
         const zoomDiff = (this._zoomTarget - this._zoomStart) * percentage;
-        const zoomStep = this._zoomStart + zoomDiff;
+        var zoomStep = this._zoomStart + zoomDiff;
+        zoomStep = Math.round(zoomStep * 100) / 100;
         var delta = this._wheelMousePosition.subtract(this._centerPoint);
         let centerStep = this.map.unproject(this.map.project(this._wheelStartLatLng, zoomStep).subtract(delta), zoomStep);
         return { centerStep, zoomStep };
       };
       this._isAnimating = false;
+      this.scrollPixelsForZoomLevel = 150;
+      this.zoomSnap = true;
     }
     wheel(event) {
-      const addToZoom = -event.deltaY / SCROLL_PIXELS_FOR_ZOOM_LEVEL;
+      const addToZoom = -event.deltaY / this.scrollPixelsForZoomLevel;
       this.zoomAroundMouse(addToZoom, event);
+    }
+    onZoom(func) {
+      this._onZoom = func;
     }
     zoomAroundMouse(zoomDiff, event) {
       let zoom = this.map.getZoom();
@@ -53,7 +62,9 @@ var featherzoom = (() => {
       this._centerPoint = this.map.getSize()._divideBy(2);
       this._startLatLng = this.map.getCenter();
       this._wheelStartLatLng = this.map.containerPointToLatLng(this._wheelMousePosition);
-      zoomTarget = zoomDiff < 0 ? Math.floor(zoomTarget) : Math.ceil(zoomTarget);
+      if (this.zoomSnap)
+        zoomTarget = zoomDiff < 0 ? Math.floor(zoomTarget) : Math.ceil(zoomTarget);
+      zoomTarget = Math.floor(zoomTarget * 100) / 100;
       zoomTarget = Math.max(this.map.getMinZoom(), Math.min(zoomTarget, this.map.getMaxZoom()));
       this.setCenterZoomTarget(zoomTarget, this._wheelStartLatLng);
     }
@@ -78,18 +89,17 @@ var featherzoom = (() => {
       this.map._move(center, zoom);
     }
   };
-  var leafletHandler = () => {
-    let s = new Scroller();
+  var leafletHandler = (scroller) => {
     return L.Handler.extend({
       addHooks: function() {
-        s.map = this._map;
+        scroller.map = this._map;
         L.DomEvent.on(this._map._container, "wheel", this._wheel, this);
       },
       removeHooks: function() {
         L.DomEvent.off(this._map._container, "wheel", this._wheel, this);
       },
       _wheel: function(event) {
-        s.wheel(event);
+        scroller.wheel(event);
         L.DomEvent.preventDefault(event);
         L.DomEvent.stopPropagation(event);
       }
