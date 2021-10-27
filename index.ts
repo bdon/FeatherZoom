@@ -1,6 +1,5 @@
 // @ts-nocheck
 const ANIMATION_TIME = 300;
-const SCROLL_PIXELS_FOR_ZOOM_LEVEL = 150;
 
 export type Point = [number, number]
 
@@ -13,11 +12,17 @@ export class Scroller {
 
     constructor() {
         this._isAnimating = false;
+        this.scrollPixelsForZoomLevel = 150;
+        this.zoomSnap = true;
     }
 
     wheel(event: MouseEvent) : void {
-        const addToZoom = -event.deltaY / SCROLL_PIXELS_FOR_ZOOM_LEVEL;
+        const addToZoom = -event.deltaY / this.scrollPixelsForZoomLevel;
         this.zoomAroundMouse(addToZoom,event);
+    }
+
+    onZoom(func) {
+        this._onZoom = func
     }
 
     zoomAroundMouse(zoomDiff: number,event: MouseEvent) : void {
@@ -28,7 +33,7 @@ export class Scroller {
         this._startLatLng = this.map.getCenter()
         this._wheelStartLatLng = this.map.containerPointToLatLng(this._wheelMousePosition);
 
-        zoomTarget = zoomDiff < 0 ? Math.floor(zoomTarget) : Math.ceil(zoomTarget);
+        if (this.zoomSnap) zoomTarget = zoomDiff < 0 ? Math.floor(zoomTarget) : Math.ceil(zoomTarget);
         zoomTarget = Math.floor(zoomTarget * 100) / 100;
         zoomTarget = Math.max(this.map.getMinZoom(), Math.min(zoomTarget, this.map.getMaxZoom()));
         this.setCenterZoomTarget(zoomTarget, this._wheelStartLatLng)
@@ -61,11 +66,13 @@ export class Scroller {
             this._isAnimating = false
             this.setCenterZoom(this.map.getCenter(),this._zoomTarget);
             this.map._moveEnd(true);
+            if (this._onZoom) this._onZoom(this._zoomTarget);
 
         } else {
             const { centerStep, zoomStep } = this.animationStep(timestamp);
             this.setCenterZoom(centerStep, zoomStep)
             this._animFrame = requestAnimationFrame(this.animate)
+            if (this._onZoom) this._onZoom(zoomStep);
         }
     }
 
@@ -86,13 +93,10 @@ export class Scroller {
     }
 }
 
-export const leafletHandler = () => {
-    let s = new Scroller();
-
+export const leafletHandler = (scroller) => {
     return L.Handler.extend({
         addHooks: function() {
-            s.map = this._map
-
+            scroller.map = this._map
             L.DomEvent.on(this._map._container, 'wheel', this._wheel, this);
         },
 
@@ -101,7 +105,7 @@ export const leafletHandler = () => {
         },
 
         _wheel: function(event) {
-            s.wheel(event);
+            scroller.wheel(event);
             L.DomEvent.preventDefault(event);
             L.DomEvent.stopPropagation(event);
         }
