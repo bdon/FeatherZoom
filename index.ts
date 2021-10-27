@@ -29,6 +29,7 @@ export class Scroller {
         this._wheelStartLatLng = this.map.containerPointToLatLng(this._wheelMousePosition);
 
         zoomTarget = zoomDiff < 0 ? Math.floor(zoomTarget) : Math.ceil(zoomTarget);
+        zoomTarget = Math.floor(zoomTarget * 100) / 100;
         zoomTarget = Math.max(this.map.getMinZoom(), Math.min(zoomTarget, this.map.getMaxZoom()));
         this.setCenterZoomTarget(zoomTarget, this._wheelStartLatLng)
     }
@@ -77,7 +78,8 @@ export class Scroller {
         const progress = Math.max(timestamp - this._animationStart, 0);
         const percentage = easeOutQuad(progress / length);
         const zoomDiff = (this._zoomTarget - this._zoomStart) * percentage;
-        const zoomStep = this._zoomStart + zoomDiff;
+        var zoomStep = this._zoomStart + zoomDiff;
+        zoomStep = Math.round(zoomStep * 100) / 100;
         var delta = this._wheelMousePosition.subtract(this._centerPoint);
         let centerStep = this.map.unproject(this.map.project(this._wheelStartLatLng, zoomStep).subtract(delta), zoomStep);
         return { centerStep: centerStep, zoomStep:zoomStep }
